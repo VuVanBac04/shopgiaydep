@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Vũ Văn Bắc</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#f4f4f4}
+
+/* HEADER */
+header{
+    background:black;
+    color:gray;
+    padding:15px 30px;
+    display:flex;
+    justify-content:space-between;
+}
+nav a{
+    text-decoration:none;
+    padding:10px 15px;
+    color:gray;
+    transition:0.3s;
+}
+
+/* khi di chuột vào */
+nav a:hover{
+    color:red;
+    background:white;
+    border-radius:5px;
+}
+
+/* BANNER */
+.banner{
+    height:220px;
+    background:url('https://via.placeholder.com/1200x220') center/cover;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:blue;
+    font-size:28px;
+}
+
+/* SEARCH */
+.search-box{
+    margin:20px;
+    text-align:center;
+}
+.search-box input{
+    padding:10px;
+    width:250px;
+}
+
+/* PRODUCTS */
+.container{width:90%;margin:auto}
+.products{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+.card{
+    background:white;
+    border-radius:10px;
+    text-align:center;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+.card img{
+    width:100%;
+    height:200px;
+    object-fit:cover;
+}
+.price{color:red;font-weight:bold}
+button{
+    margin:10px;
+    padding:10px;
+    background:black;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+button:hover{background:orange}
+
+/* CART */
+.cart{
+    position:fixed;
+    right:10px;
+    top:80px;
+    width:260px;
+    background:white;
+    padding:15px;
+    border-radius:10px;
+
+    display:none; /* QUAN TRỌNG */
+}
+.total{color:red;margin-top:10px;font-weight:bold}
+
+/* FOOTER */
+footer{
+    background:#111;
+    color:white;
+    text-align:center;
+    padding:15px;
+    margin-top:30px;
+}
+</style>
+</head>
+   <meta name="viewpost" content="width=dev">
+<body>
+
+<header>
+    <h2>👟<marquee>Chào mừng đến với shop </marquee> </h2>
+    <nav>
+        <a href="#">Trang chủ</a>
+        <a href="#">Sản phẩm</a>
+        <a href="#">liên hệ</a>
+        <a href="vongquay.html">Vòng quay may mắn</a>
+    </nav>
+    <button onclick="toggleCart()">🛒</button>
+</header>
+
+<div class="banner">SALE 50% GIÀY HOT</div>
+
+<div class="search-box">
+    <input type="text" id="search" placeholder="Tìm sản phẩm..." onkeyup="searchProduct()">
+</div>
+
+<div class="container">
+    <div class="products" id="product-list"></div>
+</div>
+
+<div class="cart">
+    <h3>🛒 Giỏ hàng</h3>
+    <div id="cart-items"></div>
+    <div class="total" id="total">Tổng: 0đ</div>
+    <button>Mua</button>
+</div>
+
+<footer>
+    <a href="gmail.html">bbac1952@gmail.com</a>
+</footer>
+
+<script>
+let products = [
+    {name:"Sneaker", price:500000, img:"https://hoangphucphoto.com/wp-content/uploads/2024/06/anh-giay-thumb.jpeg"},
+    {name:"Giày thể thao", price:650000, img:"https://cdn.vietnambiz.vn/171464876016439296/2021/7/7/httpss3-imagessportbiblecoms3content1a9d1f7560baa1754976037c901b8ad6-1625633877277435221104.jpg"},
+    {name:"Dép nam", price:200000, img:"https://product.hstatic.net/200000427375/product/4_a6e238a0986b499a94916eba374cea6e.png"},
+    {name:"Dép nam", price:400000, img:"https://lzd-img-global.slatic.net/g/shop/0f19f7d7e376f9391edfe1eb07f944fb.png_1200x1200q80.png_.webp"},
+    {name:"Dép nam", price:250000, img:"https://cf.shopee.vn/file/cc2b92701beed81ebefefea6dbab9a07"},
+    {name:"Dép nam", price:300000, img:"https://vn-test-11.slatic.net/p/54086143d73999a3b97359c4dac152c6.jpg"},
+    {name:"Dép nam", price:500000, img:"https://vn-test-11.slatic.net/p/54086143d73999a3b97359c4dac152c6.jpg"},
+    {name:"giày tây", price:500000, img:"https://lzd-img-global.slatic.net/g/p/e608f283269a7b9c4179ccad680ad0f8.jpg_720x720q80.jpg"},
+    {name:"Giày thể thao", price:200000, img:"https://vn-live-01.slatic.net/p/40b42c0bca65838c615b4aa240100b21.jpg"},
+    {name:"Giày tây", price:800000, img:"https://hthaostudio.com/wp-content/uploads/2025/11/Anh-giay-cao-cap-7-min.jpg"}
+];
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function renderProducts(list){
+    let html="";
+    list.forEach(p=>{
+        html+=`
+        <div class="card">
+            <img src="${p.img}">
+            <h3>${p.name}</h3>
+            <p class="price">${p.price}đ</p>
+            <button onclick="addToCart('${p.name}',${p.price})">Thêm 🛒</button>
+            <button click="addbuy">Mua</button>
+        </div>`;
+    });
+    document.getElementById("product-list").innerHTML=html;
+}
+
+function addToCart(name,price){
+    cart.push({name,price});
+    localStorage.setItem("cart",JSON.stringify(cart));
+    renderCart();
+}
+
+function renderCart(){
+    let html="";
+    let total=0;
+    cart.forEach((item,index)=>{
+        html+=`
+<div>
+    - ${item.name} (${item.price}đ)
+    <button onclick="removeItem(${index})">❌</button>
+</div>`;
+        total+=item.price;
+    });
+    document.getElementById("cart-items").innerHTML=html;
+    document.getElementById("total").innerText="Tổng: "+total+"đ";
+}
+function removeItem(index){
+    cart.splice(index,1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+}
+function searchProduct(){
+    let keyword=document.getElementById("search").value.toLowerCase();
+    let filtered=products.filter(p=>p.name.toLowerCase().includes(keyword));
+    renderProducts(filtered);
+}
+
+renderProducts(products);
+renderCart();
+function toggleCart(){
+    let cartBox = document.querySelector(".cart");
+
+    if(cartBox.style.display === "block"){
+        cartBox.style.display = "none";
+    }else{
+        cartBox.style.display = "block";
+    }
+}
+</script>
+
+</body>
+</html>
